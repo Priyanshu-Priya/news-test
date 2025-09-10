@@ -1,12 +1,13 @@
-// If using Node v16 or lower
-const fetch = require('node-fetch');  
+const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
   const apiKey = process.env.NEWS_API_KEY;
-  const query = event.queryStringParameters?.q || '';
+  const query = event.queryStringParameters?.q || ''; 
 
-  // Build URL
+  // Base URL for top-headlines
   let apiURL = `https://newsapi.org/v2/top-headlines?country=in&apiKey=${apiKey}`;
+  
+  // Add query only if user provides it
   if (query) {
     apiURL += `&q=${encodeURIComponent(query)}`;
   }
@@ -15,7 +16,7 @@ exports.handler = async function(event, context) {
     const response = await fetch(apiURL);
 
     if (!response.ok) {
-      const errorData = await response.json(); 
+      const errorData = await response.json();
       return {
         statusCode: response.status,
         body: JSON.stringify({ error: `News API error: ${errorData.message}` }),
