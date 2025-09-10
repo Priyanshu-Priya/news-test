@@ -2,34 +2,22 @@ const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
   const apiKey = process.env.NEWS_API_KEY;
-  const query = event.queryStringParameters?.q || ''; 
+  const query = event.queryStringParameters?.q || '';
 
-  // Base URL for top-headlines
+  // Default to top-headlines in India
   let apiURL = `https://newsapi.org/v2/top-headlines?country=in&apiKey=${apiKey}`;
-  
-  // Add query only if user provides it
-  if (query) {
+
+  // If query is provided, append it
+  if (query.trim()) {
     apiURL += `&q=${encodeURIComponent(query)}`;
   }
 
   try {
     const response = await fetch(apiURL);
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({ error: `News API error: ${errorData.message}` }),
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      };
-    }
-
     const data = await response.json();
+
     return {
-      statusCode: 200,
+      statusCode: response.ok ? 200 : response.status,
       body: JSON.stringify(data),
       headers: {
         'Content-Type': 'application/json',
